@@ -102,7 +102,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -238,6 +238,28 @@ require('lazy').setup({
   --
   -- Use `opts = {}` to force a plugin to be loaded.
   --
+  {
+    'shaunsingh/nord.nvim',
+    lazy = false,
+    config = function()
+      vim.g.nord_contrast = true
+      vim.g.nord_borders = false
+      vim.g.nord_disable_background = false
+      vim.g.nord_italic = false
+      vim.g.uniform_diff_background = true
+      vim.g.nord_bold = false
+
+      require('nord').set()
+
+      local bg_transparent = true
+
+      local toggle_transparency = function()
+        bg_transparent = not bg_transparent
+        vim.cmd 'colorscheme nord'
+      end
+      vim.keymap.set('n', '<leader>bg', toggle_transparency, { desc = 'Toggle [B]ack[G]round transparency' })
+    end,
+  },
   {
     'ThePrimeagen/harpoon',
     lazy = false,
@@ -628,10 +650,11 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+
       local servers = {
-        -- clangd = {},
         -- gopls = {},
         -- pyright = {},
+        clangd = {},
         --
 
         pyright = {
@@ -654,7 +677,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        -- ts_ls = {},
         --
 
         lua_ls = {
@@ -958,10 +981,11 @@ require('lazy').setup({
   --
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.copilot',
+  require 'kickstart.plugins.hmtlautocomplete',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
