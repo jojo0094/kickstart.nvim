@@ -986,6 +986,9 @@ require('lazy').setup({
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.copilot',
   require 'kickstart.plugins.hmtlautocomplete',
+  require 'kickstart.plugins.avante',
+  -- LSP
+  require 'kickstart.plugins.typescripts',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
