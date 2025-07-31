@@ -23,17 +23,48 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
+
+    --python
+    {
+      'mfussenegger/nvim-dap-python',
+      dependencies = {
+        'nvim-neotest/nvim-nio',
+        'rcarriga/nvim-dap-ui',
+        'mfussenegger/nvim-dap-python',
+        'theHamsta/nvim-dap-virtual-text',
+      },
+      config = function()
+        local dap = require 'dap'
+        local dapui = require 'dapui'
+        local dap_python = require 'dap-python'
+
+        require('dapui').setup {}
+        require('nvim-dap-virtual-text').setup {
+          commented = true, -- Show virtual text alongside comment
+        }
+
+        -- local venv_path = vim.fn.expand '/workspaces/restGDF/.venv/bin/python'
+        -- dap_python.setup(venv_path)
+        dap_python.setup 'uv' -- Use the system Python interpreter
+        -- require('dap-python').setup 'python'
+        -- If you want to use a virtual environment, you can set it up like this:
+        -- require('dap-python').setup(venv_path)
+        -- require('dap-python').setup(vim.fn.expand '/workspaces/restGDF/.venv/bin/python')
+        -- vim.env.PYTHONPATH = '/workspaces/restGDF'
+      end,
+    },
   },
   keys = function(_, keys)
     local dap = require 'dap'
     local dapui = require 'dapui'
     return {
       -- Basic debugging keymaps, feel free to change to your liking!
-      { '<F5>', dap.continue, desc = 'Debug: Start/Continue' },
-      { '<F1>', dap.step_into, desc = 'Debug: Step Into' },
-      { '<F2>', dap.step_over, desc = 'Debug: Step Over' },
-      { '<F3>', dap.step_out, desc = 'Debug: Step Out' },
-      { '<leader>b', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
+      { '<leader>dc', dap.continue, desc = 'Debug: Start/Continue' },
+      { '<leader>dsin', dap.step_into, desc = 'Debug: Step Into' },
+      { '<leader>dsover', dap.step_over, desc = 'Debug: Step Over' },
+      { '<leader>dsout', dap.step_out, desc = 'Debug: Step Out' },
+      { '<leader>db', dap.toggle_breakpoint, desc = 'Debug: Toggle Breakpoint' },
+      { '<leader>dt', dap.terminate, desc = 'Debug: Terminate' },
       {
         '<leader>B',
         function()

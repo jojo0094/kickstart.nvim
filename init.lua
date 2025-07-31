@@ -650,26 +650,56 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      local util = require 'lspconfig.util'
 
-      local servers = {
-        -- gopls = {},
-        -- pyright = {},
-        clangd = {},
-        --
+      local function get_pyright_config()
+        local root_dir = util.root_pattern('.venv', 'pyproject.toml', 'setup.py', '.git')(vim.fn.expand '%:p') or vim.fn.getcwd()
+        local python_path = root_dir .. '/.venv/bin/python'
 
-        pyright = {
+        return {
+          root_dir = root_dir,
+          on_init = function(client)
+            client.config.settings = vim.tbl_deep_extend('force', client.config.settings or {}, {
+              python = {
+                pythonPath = python_path,
+              },
+            })
+          end,
           settings = {
             python = {
               analysis = {
-                -- extraPaths = { '/Users/thandar/Library/Caches/pypoetry/virtualenvs/ice-breaker-1nPqykJs-py3.10/lib/python3.10/site-packages' },
-                -- extraPaths = { '/Users/thandar/akk/learning/webmap/WSNETBuilder/.venv/lib/python3.12/site-packages' },
-                -- extraPaths = { '/Users/thandar/akk/learning/water/ICMsim//.venv/lib/python3.12/site-packages' },
-                extraPaths = { '/Users/thandar/akk/learning/cpp/cppcon-2022-cpp-neovim-toy-calc/.venv/lib/python3.10/site-packages' },
-                -- extraPaths = { '/Users/thandar/akk/learning/arjancode/2022-gui/.venv/lib/python3.10/site-packages' },
+                extraPaths = {
+                  root_dir .. '/.venv/lib/python3.12/site-packages',
+                },
+                autoSearchPaths = true,
+                useLibraryCodeForTypes = true,
+                diagnosticMode = 'workspace',
               },
             },
           },
-        },
+        }
+      end
+      local servers = {
+        -- gopls = {},
+        -- pyright = {},
+        pyright = get_pyright_config(),
+        clangd = {},
+        --
+
+        -- pyright = {
+        --   local root_dir = vim.fn.getcwd(),
+        --   settings = {
+        --     python = {
+        --       analysis = {
+        --         -- extraPaths = { '/Users/thandar/Library/Caches/pypoetry/virtualenvs/ice-breaker-1nPqykJs-py3.10/lib/python3.10/site-packages' },
+        --         -- extraPaths = { '/Users/thandar/akk/learning/webmap/WSNETBuilder/.venv/lib/python3.12/site-packages' },
+        --         -- extraPaths = { '/Users/thandar/akk/learning/water/ICMsim//.venv/lib/python3.12/site-packages' },
+        --         extraPaths = { root_dir .. '/.venv/lib/python3.12/site-packages' },
+        --         -- extraPaths = { '/Users/thandar/akk/learning/arjancode/2022-gui/.venv/lib/python3.10/site-packages' },
+        --       },
+        --     },
+        --   },
+        -- },
         rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
