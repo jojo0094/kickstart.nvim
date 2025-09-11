@@ -670,6 +670,7 @@ require('lazy').setup({
               analysis = {
                 extraPaths = {
                   root_dir .. '/.venv/lib/python3.12/site-packages',
+                  '/usr/lib/python3/dist-packages', -- <-- add this when you have system packages
                 },
                 autoSearchPaths = true,
                 useLibraryCodeForTypes = true,
