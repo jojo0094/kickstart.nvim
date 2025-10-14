@@ -652,34 +652,58 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local util = require 'lspconfig.util'
 
+      -- local function get_pyright_config()
+      --   local root_dir = util.root_pattern('.venv', 'pyproject.toml', 'setup.py', '.git')(vim.fn.expand '%:p') or vim.fn.getcwd()
+      --   local python_path = root_dir .. '/.venv/bin/python'
+      --
+      --   return {
+      --     root_dir = root_dir,
+      --     on_init = function(client)
+      --       client.config.settings = vim.tbl_deep_extend('force', client.config.settings or {}, {
+      --         python = {
+      --           pythonPath = python_path,
+      --         },
+      --       })
+      --     end,
+      --     settings = {
+      --       python = {
+      --         pythonPath = python_path,
+      --         analysis = {
+      --           extraPaths = {
+      --
+      --             -- root_dir .. '/.venv/lib/python3.12/site-packages',
+      --             -- root_dir .. '/.venv/lib/python3.10/site-packages',
+      --             -- root_dir .. '/.venv/lib/python3.10/site-packages',
+      --             -- '/usr/lib/python3/dist-packages', -- <-- add this when you have system packages
+      --           },
+      --           autoSearchPaths = true,
+      --           useLibraryCodeForTypes = true,
+      --           diagnosticMode = 'workspace',
+      --         },
+      --       },
+      --     },
+      --   }
+      -- end
+      --
       local function get_pyright_config()
+        local util = require 'lspconfig.util'
         local root_dir = util.root_pattern('.venv', 'pyproject.toml', 'setup.py', '.git')(vim.fn.expand '%:p') or vim.fn.getcwd()
         local python_path = root_dir .. '/.venv/bin/python'
 
         return {
           root_dir = root_dir,
-          on_init = function(client)
-            client.config.settings = vim.tbl_deep_extend('force', client.config.settings or {}, {
-              python = {
-                pythonPath = python_path,
-              },
-            })
+          before_init = function(_, config)
+            -- Set PYTHONPATH before init
+            vim.env.PYTHONPATH = root_dir .. '/.venv/lib/python3.10/site-packages'
           end,
           settings = {
             python = {
-              analysis = {
-                extraPaths = {
-                  root_dir .. '/.venv/lib/python3.12/site-packages',
-                  '/usr/lib/python3/dist-packages', -- <-- add this when you have system packages
-                },
-                autoSearchPaths = true,
-                useLibraryCodeForTypes = true,
-                diagnosticMode = 'workspace',
-              },
+              pythonPath = python_path,
             },
           },
         }
       end
+
       local servers = {
         -- gopls = {},
         -- pyright = {},
@@ -688,14 +712,15 @@ require('lazy').setup({
         --
 
         -- pyright = {
-        --   local root_dir = vim.fn.getcwd(),
+        --   -- local root_dir = vim.fn.getcwd(),
         --   settings = {
         --     python = {
         --       analysis = {
         --         -- extraPaths = { '/Users/thandar/Library/Caches/pypoetry/virtualenvs/ice-breaker-1nPqykJs-py3.10/lib/python3.10/site-packages' },
         --         -- extraPaths = { '/Users/thandar/akk/learning/webmap/WSNETBuilder/.venv/lib/python3.12/site-packages' },
+        --         -- extraPaths = { '/Users/thandar/akk/learning/repo/temp/test/.venv/lib/python3.12/site-packages/' },
         --         -- extraPaths = { '/Users/thandar/akk/learning/water/ICMsim//.venv/lib/python3.12/site-packages' },
-        --         extraPaths = { root_dir .. '/.venv/lib/python3.12/site-packages' },
+        --         -- extraPaths = { root_dir .. '/.venv/lib/python3.12/site-packages' },
         --         -- extraPaths = { '/Users/thandar/akk/learning/arjancode/2022-gui/.venv/lib/python3.10/site-packages' },
         --       },
         --     },
@@ -740,8 +765,10 @@ require('lazy').setup({
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'pyright', -- LSP for Python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+      require('lspconfig').pyright.setup(get_pyright_config())
 
       require('mason-lspconfig').setup {
         handlers = {
@@ -752,6 +779,12 @@ require('lazy').setup({
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
+          end,
+          -- Override default pyright handler to preserve our custom settings
+          pyright = function()
+            local server = servers.pyright
+            server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            require('lspconfig').pyright.setup(server)
           end,
         },
       }
