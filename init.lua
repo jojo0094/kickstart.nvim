@@ -1051,6 +1051,7 @@ require('lazy').setup({
   require 'kickstart.plugins.copilot',
   require 'kickstart.plugins.hmtlautocomplete',
   require 'kickstart.plugins.avante',
+  require 'kickstart.plugins.matchup',
   -- LSP
   require 'kickstart.plugins.typescripts',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
