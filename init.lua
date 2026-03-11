@@ -1055,6 +1055,7 @@ require('lazy').setup({
   -- LSP
   require 'kickstart.plugins.typescripts',
   require 'kickstart.plugins.opencode',
+  require 'kickstart.plugins.aerial',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
