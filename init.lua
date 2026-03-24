@@ -650,8 +650,6 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
-      local util = require 'lspconfig.util'
-
       -- local function get_pyright_config()
       --   local root_dir = util.root_pattern('.venv', 'pyproject.toml', 'setup.py', '.git')(vim.fn.expand '%:p') or vim.fn.getcwd()
       --   local python_path = root_dir .. '/.venv/bin/python'
@@ -686,8 +684,7 @@ require('lazy').setup({
       -- end
       --
       local function get_pyright_config()
-        local util = require 'lspconfig.util'
-        local root_dir = util.root_pattern('.venv', 'pyproject.toml', 'setup.py', '.git')(vim.fn.expand '%:p') or vim.fn.getcwd()
+        local root_dir = vim.fs.root(0, { '.venv', 'pyproject.toml', 'setup.py', '.git' }) or vim.fn.getcwd()
         local python_path = root_dir .. '/.venv/bin/python'
 
         return {
@@ -768,7 +765,6 @@ require('lazy').setup({
         'pyright', -- LSP for Python
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-      require('lspconfig').pyright.setup(get_pyright_config())
 
       require('mason-lspconfig').setup {
         handlers = {
@@ -778,13 +774,15 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+            vim.lsp.config(server_name, server)
+            vim.lsp.enable(server_name)
           end,
           -- Override default pyright handler to preserve our custom settings
           pyright = function()
             local server = servers.pyright
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig').pyright.setup(server)
+            vim.lsp.config('pyright', server)
+            vim.lsp.enable('pyright')
           end,
         },
       }
@@ -1011,7 +1009,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+    main = 'nvim-treesitter.config', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
